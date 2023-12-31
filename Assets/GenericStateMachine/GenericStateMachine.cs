@@ -1,4 +1,4 @@
-namespace ayvazarik.StateMachine
+namespace ayvazarik.GenericStateMachine
 {
     using System.Collections.Generic;
     using UnityEngine;
@@ -10,7 +10,7 @@ namespace ayvazarik.StateMachine
         private Dictionary<TStateIds, GenericStateBase<TStateIds, TStateInfo>> dictStates = null;
 
         public GenericStateBase<TStateIds, TStateInfo> State => state;
-        private GenericStateBase<TStateIds, TStateInfo> state = null;
+        private GenericStateBase<TStateIds, TStateInfo>state = null;
         private TStateInfo stateInfo = null;
 
         public void InitStateMachine(TStateInfo stateInfo, IEnumerable<GenericStateBase<TStateIds, TStateInfo>> initStates)
@@ -101,6 +101,13 @@ namespace ayvazarik.StateMachine
             State?.OnFixedUpdate(stateInfo);
         }
 
+        private void LateUpdate()
+        {
+            if (stateInfo == null)
+                return;
+
+            State?.OnLateUpdate(stateInfo);
+        }
     }
 }
 

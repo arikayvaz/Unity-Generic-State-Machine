@@ -1,4 +1,4 @@
-namespace ayvazarik.StateMachine
+namespace ayvazarik.GenericStateMachine
 {
     using UnityEngine;
 
@@ -19,5 +19,6 @@ namespace ayvazarik.StateMachine
         public virtual void OnExit(TStateInfo info) { }
         public virtual void OnUpdate(TStateInfo info) { }
         public virtual void OnFixedUpdate(TStateInfo info) { }
+        public virtual void OnLateUpdate(TStateInfo info) { }
     }
 }

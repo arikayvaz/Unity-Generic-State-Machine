@@ -1,4 +1,4 @@
-namespace ayvazarik.StateMachine
+namespace ayvazarik.GenericStateMachine
 {
     using System.Collections.Generic;
     using UnityEngine;
