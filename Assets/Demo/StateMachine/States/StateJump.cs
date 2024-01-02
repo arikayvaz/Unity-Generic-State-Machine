@@ -2,7 +2,6 @@ namespace ayvazarik.Demo.DemoStateMachine
 {
     using ayvazarik.GenericStateMachine;
     using UnityEngine;
-    using UnityEngine.InputSystem.XR;
     using UnityEngine.Windows;
 
     public class StateJump : StateBase<StateIds, StateInfo>
@@ -11,11 +10,20 @@ namespace ayvazarik.Demo.DemoStateMachine
 
         public StateJump(GenericStateMachine<StateIds, StateInfo> stateMachine) : base(stateMachine) { }
 
+        bool jump = false;
+        float jumpTargetPosY;
+        bool isJumpSuccess = false;
+
         public override void OnEnter(StateInfo info)
         {
             base.OnEnter(info);
 
             Debug.Log("State Jump");
+
+            jump = true;
+            isJumpSuccess = false;
+            jumpTargetPosY = info.character.transform.position.y + info.JumpHeight;
+            info._verticalVelocity = 0f;
         }
 
         public override void OnExit(StateInfo info)
@@ -36,9 +44,19 @@ namespace ayvazarik.Demo.DemoStateMachine
 
             JumpAndGravity(info);
             info.GroundedCheck();
+            HandleMovement(info);
 
-            if (info._verticalVelocity <= 0f && info.Grounded)
+            if (info.character.transform.position.y >= jumpTargetPosY)
+            {
+                Debug.LogWarning("Jump Success");
+                isJumpSuccess = true;
+            }
+
+            if (isJumpSuccess && info.Grounded && info.character.transform.position.y <= 0f)
+            {
+                Debug.LogWarning("Jump Complete");
                 stateMachine.ChangeState(StateIds.Idle);
+            }
         }
 
         private void JumpAndGravity(StateInfo info)
@@ -59,7 +77,7 @@ namespace ayvazarik.Demo.DemoStateMachine
                 }
 
                 // Jump
-                if (info.input.jump && info._jumpTimeoutDelta <= 0.0f)
+                if (jump && info._jumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     info._verticalVelocity = Mathf.Sqrt(info.JumpHeight * -2f * info.Gravity);
@@ -91,7 +109,7 @@ namespace ayvazarik.Demo.DemoStateMachine
                 }
 
                 // if we are not grounded, do not jump
-                info.input.jump = false;
+                jump = false;
             }
 
             // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
@@ -99,8 +117,12 @@ namespace ayvazarik.Demo.DemoStateMachine
             {
                 info._verticalVelocity += info.Gravity * Time.deltaTime;
             }
+        }
 
-            info._controller.Move(new Vector3(0.0f, info._verticalVelocity, 0.0f) * Time.deltaTime);
+        private void HandleMovement(StateInfo info) 
+        {
+            Vector3 motion = new Vector3(0f, info._verticalVelocity * Time.deltaTime, 0f);
+            info._controller.Move(motion);
         }
     }
 }

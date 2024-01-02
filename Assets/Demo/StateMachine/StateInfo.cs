@@ -10,6 +10,7 @@ namespace ayvazarik.Demo.DemoStateMachine
     public class StateInfo : GenericStateInfo
     {
         public DemoCharacterController character = null;
+        [HideInInspector] public DemoCharacterInput characterInput = null;
 
         [Space]
         [Tooltip("Move speed of the character in m/s")]
@@ -108,6 +109,9 @@ namespace ayvazarik.Demo.DemoStateMachine
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
             AssignAnimationIDs();
+
+            characterInput = new DemoCharacterInput();
+            characterInput.Enable();
 
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;

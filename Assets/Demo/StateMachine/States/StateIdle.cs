@@ -2,7 +2,8 @@ namespace ayvazarik.Demo.DemoStateMachine
 {
     using ayvazarik.GenericStateMachine;
     using UnityEngine;
-    using UnityEngine.Windows;
+    using UnityEngine.InputSystem;
+    using UnityEngine.TextCore.Text;
 
     public class StateIdle : StateBase<StateIds, StateInfo>
     {
@@ -10,75 +11,55 @@ namespace ayvazarik.Demo.DemoStateMachine
 
         public StateIdle(GenericStateMachine<StateIds, StateInfo> stateMachine) : base(stateMachine) { }
 
+        private StateInfo info;
+
         public override void OnEnter(StateInfo info)
         {
             base.OnEnter(info);
 
             Debug.Log("State Idle");
 
-            //info._animator.SetFloat(info._animIDSpeed, 0f);
-            info._animator.SetFloat(info._animIDMotionSpeed, 0f);
+            this.info = info;
+
+            SubscribeInputs(info);
         }
 
-        public override void OnUpdate(StateInfo info)
+        public override void OnExit(StateInfo info)
         {
-            base.OnUpdate(info);
+            base.OnExit(info);
 
-            HandleAnimationBlend(info);
-            info.GroundedCheck();
+            UnsubscribeInputs(info);
 
-            if (CheckJump(info))
-                return;
-
-            CheckMovement(info);
+            this.info = null;
         }
 
-        public override void OnLateUpdate(StateInfo info)
+        public override void SubscribeInputs(StateInfo info)
         {
-            base.OnLateUpdate(info);
+            base.SubscribeInputs(info);
 
-            info.CameraRotation();
+            info.characterInput.Player.Move.started += MoveInputStarted;
+            info.characterInput.Player.Jump.started += JumpInputStarted;
         }
 
-        private void CheckMovement(StateInfo info) 
+        public override void UnsubscribeInputs(StateInfo info)
         {
-            float vel = info.input.move.magnitude;
+            base.UnsubscribeInputs(info);
 
-            if (vel > 0.001f)
-            {
-                stateMachine.ChangeState(StateIds.Move);
-            }
+            info.characterInput.Player.Move.started -= MoveInputStarted;
+            info.characterInput.Player.Jump.started -= JumpInputStarted;
         }
 
-        private void HandleAnimationBlend(StateInfo info) 
+        private void MoveInputStarted(InputAction.CallbackContext callback)
         {
-            if (info._animationBlend <= 0f) 
-            {
-                return;
-            }
-
-            info._animationBlend = Mathf.Lerp(info._animationBlend, 0f, 10f * Time.deltaTime);
-            info._animator.SetFloat(info._animIDSpeed, info._animationBlend);
-            //info._animator.SetFloat(info._animIDMotionSpeed, inputMagnitude);
+            stateMachine.ChangeState(StateIds.Move);
         }
 
-        private bool CheckJump(StateInfo info) 
+        private void JumpInputStarted(InputAction.CallbackContext callback) 
         {
             if (!info.Grounded)
-                return false;
+                return;
 
-            if (info._jumpTimeoutDelta >= 0.0f)
-            {
-                info._jumpTimeoutDelta -= Time.deltaTime;
-            }
-
-            if (info.input.jump && info._jumpTimeoutDelta <= 0.0f)
-            {
-                stateMachine.ChangeState(StateIds.Jump);
-                return true;
-            }
-
-            return false;
+            stateMachine.ChangeState(StateIds.Jump);
         }
     }
 }
