@@ -102,6 +102,8 @@ namespace ayvazarik.Demo.DemoStateMachine
         [HideInInspector] public int _animIDFreeFall;
         [HideInInspector] public int _animIDMotionSpeed;
 
+        public StateDisplay stateDisplay;
+
         public void InitInfo()
         {
             _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");

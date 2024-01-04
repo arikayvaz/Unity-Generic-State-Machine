@@ -19,7 +19,7 @@ namespace ayvazarik.Demo.DemoStateMachine
         {
             base.OnEnter(info);
 
-            Debug.Log("State Move");
+            info.stateDisplay.UpdateStateDisplay(StateId.ToString());
 
             moveInput = info.characterInput.Player.Move.ReadValue<Vector2>();
             isSprint = info.characterInput.Player.Sprint.IsPressed();

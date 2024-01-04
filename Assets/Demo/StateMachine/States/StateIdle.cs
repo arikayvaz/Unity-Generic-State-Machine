@@ -17,7 +17,7 @@ namespace ayvazarik.Demo.DemoStateMachine
         {
             base.OnEnter(info);
 
-            Debug.Log("State Idle");
+            info.stateDisplay.UpdateStateDisplay(StateId.ToString());
 
             this.info = info;
 

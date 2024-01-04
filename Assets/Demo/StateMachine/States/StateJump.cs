@@ -18,7 +18,7 @@ namespace ayvazarik.Demo.DemoStateMachine
         {
             base.OnEnter(info);
 
-            Debug.Log("State Jump");
+            info.stateDisplay.UpdateStateDisplay(StateId.ToString());
 
             jump = true;
             isJumpSuccess = false;
